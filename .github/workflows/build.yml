@@ -1,0 +1,46 @@
+name: Vite Build
+
+on:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [latest]
+
+        steps:
+            - uses: actions/checkout@v4
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - run: |
+                  npm install && \
+                  npm run build && \
+                  mkdir release && \
+                  mv dist release/ && \
+                  mv app.js release/ && \
+                  mv default release/ && \
+                  mv package.json2 release/package.json
+
+            - name: Zip project
+              uses: montudor/action-zip@v1
+              with:
+                  args: zip -qq -r code.zip release
+
+            - name: Release
+              uses: ncipollo/release-action@v1
+              with:
+                  name: Release
+                  tag: latest
+                  body: Release
+                  artifacts: 'code.zip'
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  allowUpdates: true
+                  makeLatest: true
