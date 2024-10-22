@@ -62,7 +62,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onClose }) => {
 	};
 
 	return (
-		<div className='fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75'>
+		<div className='fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50'>
 			<div className='w-11/12 rounded-lg bg-white p-8 shadow-2xl md:w-2/5'>
 				<div className='relative mb-4 flex items-center justify-center'>
 					<h2 className='text-xl font-semibold text-gray-800'>

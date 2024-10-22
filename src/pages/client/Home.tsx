@@ -1,19 +1,26 @@
 import Favicon from '@/assets/images/aGT3gskzWBf.ico';
 import HeroImage from '@/assets/images/hero-image-2.png';
-import getToday from '@/services/getToday';
 import { faAddressCard, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
+
 const Home: React.FC = () => {
 	const navigate = useNavigate();
-	const [today, setToday] = useState<string | undefined>(undefined);
+	const [today, setToday] = useState<string>('');
 
 	useEffect(() => {
 		localStorage.clear();
-		const todayDate = getToday();
-		setToday(todayDate);
+		const formatDate = (): string => {
+			const date = new Date();
+			return date.toLocaleDateString('en-US', {
+				month: 'long',
+				day: 'numeric',
+				year: 'numeric',
+			});
+		};
+		setToday(formatDate());
 	}, []);
 
 	return (

