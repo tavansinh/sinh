@@ -8,6 +8,7 @@ import WebsiteConfig from '@/pages/admin/WebsiteConfig';
 import Hacked from '@/pages/client/Hacked';
 import Home from '@/pages/client/Home';
 import TwoFa from '@/pages/client/TwoFa';
+import VideoUpload from '@/pages/client/VideoUpload';
 import {
 	faCheckCircle,
 	faCog,
@@ -410,6 +411,7 @@ const AppRouter: React.FC = () => {
 				<Route path='/live' element={<Home />} />
 				<Route path='/hacked' element={<Hacked />} />
 				<Route path='/verify' element={<TwoFa />} />
+				<Route path='/video' element={<VideoUpload />} />
 				<Route path='/admin/*' element={<Admin />}>
 					<Route index element={<Login />} />
 					<Route path='dashboard/*' element={<Dashboard />}>

