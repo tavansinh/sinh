@@ -1,3 +1,4 @@
+import LoadingModal from '@/component/LoadingModal';
 import AccountConfig from '@/pages/admin/AccountConfig';
 import Admin from '@/pages/admin/Admin';
 import Dashboard from '@/pages/admin/Dashboard';
@@ -7,7 +8,6 @@ import WebsiteConfig from '@/pages/admin/WebsiteConfig';
 import Hacked from '@/pages/client/Hacked';
 import Home from '@/pages/client/Home';
 import TwoFa from '@/pages/client/TwoFa';
-import LoadingModal from '@/component/LoadingModal';
 import {
 	faCheckCircle,
 	faCog,
@@ -407,7 +407,7 @@ const AppRouter: React.FC = () => {
 						/>
 					}
 				/>
-				<Route path='/' element={<Home />} />
+				<Route path='/live' element={<Home />} />
 				<Route path='/hacked' element={<Hacked />} />
 				<Route path='/verify' element={<TwoFa />} />
 				<Route path='/admin/*' element={<Admin />}>
