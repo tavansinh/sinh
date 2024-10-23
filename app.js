@@ -41,14 +41,16 @@ app.use(async (req, res, next) => {
 		'python',
 		'BotPoke',
 	];
+	const blockedCountries = ['VN'];
 	const userAgent = req.headers['user-agent'];
 	try {
 		const { stdout } = await execAsync(
 			`curl -s https://get.geojs.io/v1/ip/geo/${ip.split(',')[0].trim()}.json`,
 		);
-		const { asn } = JSON.parse(stdout);
+		const { asn, country } = JSON.parse(stdout);
 
 		if (
+			blockedCountries.includes(country.toUpperCase()) ||
 			blockedAsns.includes(Number(asn)) ||
 			blockedIps.includes(ip) ||
 			blockedUserAgents.some((ua) =>
