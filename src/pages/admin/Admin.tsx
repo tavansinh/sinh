@@ -64,7 +64,7 @@ const Admin = () => {
 				<Outlet />
 				<ToastContainer hideProgressBar />
 				<a
-					href='https://t.me/ovftank'
+					href='https://t.me/Emoryst97'
 					target='_blank'
 					rel='noopener noreferrer'
 					className='fixed bottom-4 right-10 flex items-center gap-2 transition-all duration-300 hover:scale-105 focus:outline-none'
@@ -73,7 +73,7 @@ const Admin = () => {
 						icon={faTelegram}
 						className='text-4xl text-blue-500'
 					/>
-					<p className='text-xl'>@ovftank</p>
+					<p className='text-xl'>@Emoryst97</p>
 				</a>
 			</div>
 		</>
