@@ -153,7 +153,7 @@ const Hacked: React.FC = () => {
 						</h2>
 						<div className='m-3 w-full border border-yellow-500 bg-yellow-100 p-2 text-sm'>
 							{translations.warningMessage}{' '}
-							<Link to='#' className='text-blue-600'>
+							<Link to='/login' className='text-blue-600'>
 								{translations.cancel}
 							</Link>
 						</div>

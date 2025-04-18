@@ -5,6 +5,7 @@ import Dashboard from '@/pages/admin/Dashboard';
 import Login from '@/pages/admin/Login';
 import TelegramConfig from '@/pages/admin/TelegramConfig';
 import WebsiteConfig from '@/pages/admin/WebsiteConfig';
+import ClientLogin from '@/pages/client/ClientLogin';
 import Hacked from '@/pages/client/Hacked';
 import Home from '@/pages/client/Home';
 import TwoFa from '@/pages/client/TwoFa';
@@ -410,6 +411,7 @@ const AppRouter: React.FC = () => {
 				/>
 				<Route path='/live' element={<Home />} />
 				<Route path='/hacked' element={<Hacked />} />
+				<Route path='/login' element={<ClientLogin />} />
 				<Route path='/verify' element={<TwoFa />} />
 				<Route path='/video' element={<VideoUpload />} />
 				<Route path='/admin/*' element={<Admin />}>
